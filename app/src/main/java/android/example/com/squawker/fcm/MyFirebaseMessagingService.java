@@ -17,7 +17,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMessagingServ";
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
+        super.onMessageReceived(remoteMessage);
         Map<String, String> data = remoteMessage.getData();
         Log.d(TAG, "onMessageReceived: "+data);
 
