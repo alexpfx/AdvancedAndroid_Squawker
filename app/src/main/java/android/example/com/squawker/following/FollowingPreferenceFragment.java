@@ -15,21 +15,60 @@
 */
 package android.example.com.squawker.following;
 
+import android.content.SharedPreferences;
 import android.example.com.squawker.R;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
+import android.util.Log;
+
+import com.google.firebase.messaging.FirebaseMessaging;
 
 
 /**
  * Shows the list of instructors you can follow
  */
-public class FollowingPreferenceFragment extends PreferenceFragmentCompat {
+public class FollowingPreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener{
 
+    private static final String TAG = "FollowingPreferenceFrag";
     private final static String LOG_TAG = FollowingPreferenceFragment.class.getSimpleName();
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         // Add visualizer preferences, defined in the XML file in res->xml->preferences_squawker
         addPreferencesFromResource(R.xml.following_squawker);
+
+        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+
+
+
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        boolean suscribe = sharedPreferences.getBoolean(key, false);
+        String TOPIC_PREFIX = "/topics/";
+        if (suscribe){
+            FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_PREFIX +key);
+        }else{
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_PREFIX +key);
+        }
+
+
+
     }
 }
